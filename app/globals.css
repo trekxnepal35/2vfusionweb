@@ -93,3 +93,48 @@ ul {
   padding-left: 23%;
 }
 
+
+/* Rich Text */
+.rich-text-content {
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+
+.rich-text-content p {
+  margin-bottom: 1rem;
+}
+
+.rich-text-content h2 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.rich-text-content h3 {
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.rich-text-content ul {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+.rich-text-content ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+}
+
+.rich-text-content li {
+  margin-bottom: 0.35rem;
+}
+
+.rich-text-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}

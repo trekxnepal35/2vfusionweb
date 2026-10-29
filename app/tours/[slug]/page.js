@@ -14,6 +14,7 @@ import SectionCollapse from "@/app/components/SectionCollapse";
 import { resolvePageImage, resolveImage, } from "@/lib/imageResolver";
 import Region from "@/models/Region";
 import YouTubeVideos from "@/app/components/YouTubeVideos";
+import RichTextContent from "@/app/components/RichTextContent";
 
 
 /*
@@ -474,11 +475,16 @@ GALLERY IMAGES
                     <hr />
 
 
-                    <div className="text-justify whitespace-pre-line leading-8 text-gray-700 ">
+                    {/* <div className="text-justify whitespace-pre-line leading-8 text-gray-700 ">
 
                       {tour.content}
 
-                    </div>
+                    </div> */}
+                    <RichTextContent
+                      content={tour.content}
+                      className="prose max-w-none prose-p:leading-8 prose-p:text-gray-700 prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-blue-600 prose-a:hover:underline"
+                    />
+
                   </SectionCollapse>
 
                 </section>
@@ -496,11 +502,16 @@ GALLERY IMAGES
 
                   <SectionCollapse title="Highlight">
                     <hr />
-                    <div className="text-justify whitespace-pre-line leading-8 text-gray-700">
+                    {/* <div className="text-justify whitespace-pre-line leading-8 text-gray-700">
 
                       {tour.highlight}
 
-                    </div>
+                    </div> */}
+
+                    <RichTextContent
+                      content={tour.highlight}
+                      className="prose max-w-none prose-p:leading-8 prose-p:text-gray-700 prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-blue-600 prose-a:hover:underline"
+                    />
                   </SectionCollapse>
 
                 </section>
@@ -569,92 +580,68 @@ GALLERY IMAGES
               {tour.itinerary?.length > 0 && (
 
                 <section id="itinerary" className="mt-12">
-
                   <SectionCollapse title="Itinerary">
-
-
                     <div className="space-y-5">
-
-                      {tour.itinerary.map(
-                        (day, index) => (
-
-                          <div
-                            key={index}
-                            className="rounded-xl border p-6  shadow-sm"
+                      {tour.itinerary.map((day, index) => (
+                        <div
+                          key={index}
+                          className="rounded-xl border bg-white p-6 shadow-sm"
+                        >
+                          <SectionCollapse
+                            title={`Day:${day.day}  ${day.title}`}
                           >
-
-                            {/* <div className="flex gap-0.5 "/> */}
-
-                              {/* <div className=" text-[12px] flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-900 font-bold text-white">
-
-                                Day:{day.day}
-
-                              </div> */}
-                              <p className="mt-3 text-justify font-bold text-[23px]  whitespace-pre-line leading-7 text-gray-900" >
-                                Day:{day.day} </p>
-
-                              <SectionCollapse title={day.title}>
-                                <div >
+                            {/* DAY DESCRIPTION */}
 
 
-                                  {day.description && (
+                            {/* {day.description && (
+                              <p className="mt-3 whitespace-pre-line text-justify leading-7 text-gray-600">
+                                {day.description}
+                              </p>
+                            )} */}
 
-                                    <p className="text-justify  mt-3  whitespace-pre-line leading-7 text-gray-600">
+                            {day.description && (
+                              <RichTextContent
+                                content={day.description}
+                                className="prose max-w-none prose-p:leading-7 prose-p:text-gray-600 prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-blue-600 prose-a:hover:underline"
+                              />
+                            )}
 
-                                      {day.description}
+                            {/* DAY DETAILS */}
 
-                                    </p>
+                            <div className="mt-4 flex flex-wrap gap-3 text-sm text-gray-600">
+                              {day.altitude && (
+                                <span>
+                                  🏔️ Altitude: {day.altitude}
+                                </span>
+                              )}
 
-                                  )}
+                              {day.walkingHours && (
+                                <span>
+                                  🚶 Walking: {day.walkingHours}
+                                </span>
+                              )}
 
+                              {day.accommodation && (
+                                <span>
+                                  🛏️ Stay: {day.accommodation}
+                                </span>
+                              )}
 
-                                  <div className="mt-4 flex flex-wrap gap-3 text-sm text-gray-600">
-
-                                    {day.altitude && (
-                                      <span>🏔️
-                                        Altitude: {day.altitude}
-                                      </span>
-                                    )}
-
-                                    {day.walkingHours && (
-                                      <span>🚶
-                                        Travel Hours: {day.walkingHours}
-                                      </span>
-                                    )}
-
-                                    {day.accommodation && (
-                                      <span>🛏️
-                                        Stay: {day.accommodation}
-                                      </span>
-                                    )}
-
-                                    {day.meal && (
-                                      <span>🍽️
-                                        Meal: {day.meal}
-                                      </span>
-                                    )}
-
-                                  </div>
-
-
-
-                                </div>
-                              </SectionCollapse>
-
-                          
-
-                          </div>
-
-                        )
-                      )}
-
+                              {day.meal && (
+                                <span>
+                                  🍽️ Meal: {day.meal}
+                                </span>
+                              )}
+                            </div>
+                          </SectionCollapse>
+                        </div>
+                      ))}
                     </div>
                   </SectionCollapse>
 
+
                 </section>
-
               )}
-
 
 
 
@@ -873,11 +860,16 @@ GALLERY IMAGES
               <SectionCollapse title="Important Information">
                 <hr />
 
-                <p className="text-justify whitespace-pre-line leading-7 text-gray-700">
+                {/* <p className="text-justify whitespace-pre-line leading-7 text-gray-700">
 
                   {tour.importantInformation}
 
-                </p>
+                </p> */}
+
+                <RichTextContent
+                  content={tour.importantInformation}
+                  className="prose max-w-none prose-p:leading-7 prose-p:text-gray-700 prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-blue-600 prose-a:hover:underline"
+                />
               </SectionCollapse>
 
             </section>
@@ -969,9 +961,14 @@ GALLERY IMAGES
 
                                 <div className="mt-4 border-t border-gray-100 pt-4">
 
-                                  <p className="text-justify leading-7 text-gray-600">
+                                  {/* <p className="text-justify leading-7 text-gray-600">
                                     {faq.answer}
-                                  </p>
+                                  </p> */}
+
+                                  <RichTextContent
+                                    content={faq.answer}
+                                    className="prose max-w-none prose-p:leading-7 prose-p:text-gray-600 prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-blue-600 prose-a:hover:underline"
+                                  />
 
                                 </div>
 

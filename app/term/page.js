@@ -82,9 +82,9 @@ export default async function TermsPage() {
 
                                 <div className="min-w-0 flex-1">
 
-                                    <h2 className="text-justify text-xl font-bold text-slate-900 sm:text-2xl">
+                                    <h5 className="text-justify text-16 font-bold text-slate-900 sm:text-22">
                                         {item.question}
-                                    </h2>
+                                    </h5>
 
                                     <div className="whitespace-pre-line text-justify mt-5 text-base leading-8 text-slate-600">
                                         {item.answer}

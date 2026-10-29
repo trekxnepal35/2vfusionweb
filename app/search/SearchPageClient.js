@@ -1873,9 +1873,9 @@ export default function SearchPageClient() {
 
                                   <>
 
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-22  text-gray-900">
 
-                                      From
+                                      Start From
 
                                     </p>
 

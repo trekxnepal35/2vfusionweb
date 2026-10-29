@@ -344,7 +344,7 @@ export async function GET(request) {
         AWS image resolve
      
          */
- 
+
 
       const imageUrl =
         await resolvePageImage(pageData);
@@ -937,7 +937,7 @@ export async function GET(request) {
       await resolvePageImages(pages);
 
 
-    
+
 
     /*
     ========================================
@@ -1565,6 +1565,133 @@ export async function POST(request) {
         importantInformation:
           body.importantInformation ||
           "",
+
+                  /*
+          ========================================
+          TEAM PROFILE
+          ========================================
+          */
+
+                  teamProfile: {
+                    name: String(
+                      body.teamProfile?.name || ""
+                    ).trim(),
+
+                    position: String(
+                      body.teamProfile?.position || ""
+                    ).trim(),
+
+                    biography: String(
+                      body.teamProfile?.biography || ""
+                    ).trim(),
+
+                    photoUrl: String(
+                      body.teamProfile?.photoUrl || ""
+                    ).trim(),
+
+                    photoStorage: ["cloudinary", "s3"].includes(
+                      body.teamProfile?.photoStorage
+                    )
+                      ? body.teamProfile.photoStorage
+                      : "",
+
+                    photoPublicId: String(
+                      body.teamProfile?.photoPublicId || ""
+                    ).trim(),
+
+                    photoKey: String(
+                      body.teamProfile?.photoKey || ""
+                    ).trim(),
+
+                    socialLinks: {
+                      linkedin: String(
+                        body.teamProfile?.socialLinks?.linkedin || ""
+                      ).trim(),
+
+                      instagram: String(
+                        body.teamProfile?.socialLinks?.instagram || ""
+                      ).trim(),
+
+                      facebook: String(
+                        body.teamProfile?.socialLinks?.facebook || ""
+                      ).trim(),
+
+                      website: String(
+                        body.teamProfile?.socialLinks?.website || ""
+                      ).trim(),
+                    },
+                  },
+
+                  professionalGuide: {
+                    name: String(
+                      body.professionalGuide?.name || ""
+                    ).trim(),
+                  
+                    photoUrl: String(
+                      body.professionalGuide?.photoUrl || ""
+                    ).trim(),
+                  
+                    photoStorage: ["cloudinary", "s3"].includes(
+                      body.professionalGuide?.photoStorage
+                    )
+                      ? body.professionalGuide.photoStorage
+                      : "",
+                  
+                    photoPublicId: String(
+                      body.professionalGuide?.photoPublicId || ""
+                    ).trim(),
+                  
+                    photoKey: String(
+                      body.professionalGuide?.photoKey || ""
+                    ).trim(),
+                  
+                    qualifications: String(
+                      body.professionalGuide?.qualifications || ""
+                    ).trim(),
+                  
+                    certifications: String(
+                      body.professionalGuide?.certifications || ""
+                    ).trim(),
+                  
+                    languages: Array.isArray(body.professionalGuide?.languages)
+                      ? body.professionalGuide.languages
+                          .map((item) => String(item).trim())
+                          .filter(Boolean)
+                      : [],
+                  
+                    experienceYears: Math.max(
+                      0,
+                      Number(body.professionalGuide?.experienceYears) || 0
+                    ),
+                  
+                    specialties: Array.isArray(body.professionalGuide?.specialties)
+                      ? body.professionalGuide.specialties
+                          .map((item) => String(item).trim())
+                          .filter(Boolean)
+                      : [],
+                  
+                    biography: String(
+                      body.professionalGuide?.biography || ""
+                    ).trim(),
+                  
+                    socialLinks: {
+                      linkedin: String(
+                        body.professionalGuide?.socialLinks?.linkedin || ""
+                      ).trim(),
+                  
+                      instagram: String(
+                        body.professionalGuide?.socialLinks?.instagram || ""
+                      ).trim(),
+                  
+                      facebook: String(
+                        body.professionalGuide?.socialLinks?.facebook || ""
+                      ).trim(),
+                  
+                      website: String(
+                        body.professionalGuide?.socialLinks?.website || ""
+                      ).trim(),
+                    },
+                  },
         /*
 ========================================
 FAQ MAP- IMAGE

@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 import { getMenus } from "@/lib/getMenus";
 import Link from "next/link";
+import AssistantChat from "./components/AssistantChat";
 import {
   FaYoutube,
   FaWhatsapp,
@@ -431,6 +432,10 @@ export default async function RootLayout({
           </div>
 
         </footer>
+
+          {/* Floating AI Assistant */}
+          <AssistantChat />
+
 
 
         {/* =================================

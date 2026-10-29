@@ -203,7 +203,7 @@ export default async function TreksPage() {
                   {trek.imageUrl ? (
 
                     <img
-                    src={trek.imageUrl}
+                      src={trek.imageUrl}
                       alt={trek.title}
                       className="h-56 w-full object-cover"
                     />
@@ -280,24 +280,60 @@ export default async function TreksPage() {
                     </div>
 
 
+                  
+
                     {/* PRICE */}
 
-                    {trek.price?.amount > 0 && (
+                    {(() => {
+                      const price = trek.price;
 
-                      <div className="mt-5">
+                      if (!price) return null;
 
-                        <span className="text-2xl font-bold text-gray-900">
-                          {trek.price.currency}{" "}
-                          {trek.price.amount}
-                        </span>
+                      let amount = 0;
+                      let label = "";
+
+                      if (price.pricingType === "pax_based") {
+                        const tiers = Array.isArray(price.paxPrices)
+                          ? price.paxPrices
+                          : [];
+
+
+                        const validPrices = tiers
+                          .map((tier) => Number(tier.pricePerPax))
+                          .filter((value) => Number.isFinite(value) && value > 0);
+
+                        if (validPrices.length === 0) return null;
+
+                        amount = Math.min(...validPrices);
+                        label = "Start From";
+
+
+                      } else {
+                        amount = Number(price.amount);
+
+
+                        if (!Number.isFinite(amount) || amount <= 0) {
+                          return null;
+                        }
+
+
+                      }
+
+                      return (<div className="mt-5"> <span className="text-22 font-bold text-gray-900">
+                        {label ? `${label} ` : ""}
+                        {price.currency || "USD"}{" "}
+                        {amount.toLocaleString("en-US")} </span>
+
 
                         <span className="ml-2 text-sm text-gray-500">
                           / person
                         </span>
-
                       </div>
 
-                    )}
+
+                      );
+                    })()}
+
 
 
                     {/* BUTTON */}

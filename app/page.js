@@ -216,110 +216,47 @@ FETCH FAQS
   
   */
 
-  function getPrice(
-    item
-  ) {
-
-
-    const price =
-      item?.price;
-
-
-    if (!price) {
-
-      return null;
-
-    }
-
-
-    if (
-      price.pricingType ===
-      "pax_based"
-    ) {
-
-      const tiers =
-        price.paxPrices || [];
-
-
-      if (
-        tiers.length === 0
-      ) {
-
-        return null;
-
-      }
-
-
-      const lowest =
-        Math.min(
-          ...tiers.map(
-            (tier) =>
-              Number(
-                tier.pricePerPax
-              )
-          )
-        );
-
-
-      if (
-        !Number.isFinite(
-          lowest
-        )
-      ) {
-
-        return null;
-
-      }
-
-
-      return {
-
-        amount: lowest,
-
-        currency:
-          price.currency ||
-          "USD",
-
-        label:
-          "From",
-
-      };
-
-    }
-
-
-    const amount =
-      Number(
-        price.amount
-      );
-
-
-    if (
-      !Number.isFinite(
-        amount
-      ) ||
-      amount <= 0
-    ) {
-
-      return null;
-
-    }
-
-
+  function getPrice(item) {
+    const price = item?.price;
+    
+    if (!price) return null;
+    
+    // PAX-based pricing: display the minimum price per person
+    if (price.pricingType === "pax_based") {
+    const tiers = Array.isArray(price.paxPrices)
+    ? price.paxPrices
+    : [];
+    
+    
+    const validPrices = tiers
+      .map((tier) => Number(tier.pricePerPax))
+      .filter((amount) => Number.isFinite(amount) && amount > 0);
+    
+    if (validPrices.length === 0) return null;
+    
     return {
-
-      amount,
-
-      currency:
-        price.currency ||
-        "USD",
-
-      label: "",
-
+      amount: Math.min(...validPrices),
+      currency: price.currency || "USD",
+      label: " Start From",
     };
-
-
-  }
+    
+    
+    }
+    
+    // Fixed pricing
+    const amount = Number(price.amount);
+    
+    if (!Number.isFinite(amount) || amount <= 0) {
+    return null;
+    }
+    
+    return {
+    amount,
+    currency: price.currency || "USD",
+    label: "",
+    };
+    }
+    
 
 
 

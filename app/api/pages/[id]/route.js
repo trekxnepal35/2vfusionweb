@@ -1114,6 +1114,136 @@ export async function PUT(
 
 
     /*
+    ========================================
+    TEAM PROFILE
+    ========================================
+    */
+
+    if (body.teamProfile !== undefined) {
+      const team = body.teamProfile || {};
+
+      existingPage.teamProfile = {
+        name: String(team.name || "").trim(),
+
+        position: String(team.position || "").trim(),
+
+        biography: String(team.biography || "").trim(),
+
+        photoUrl: String(team.photoUrl || "").trim(),
+
+        photoStorage: ["cloudinary", "s3"].includes(
+          team.photoStorage
+        )
+          ? team.photoStorage
+          : "",
+
+        photoPublicId: String(
+          team.photoPublicId || ""
+        ).trim(),
+
+        photoKey: String(
+          team.photoKey || ""
+        ).trim(),
+
+        socialLinks: {
+          linkedin: String(
+            team.socialLinks?.linkedin || ""
+          ).trim(),
+
+          instagram: String(
+            team.socialLinks?.instagram || ""
+          ).trim(),
+
+          facebook: String(
+            team.socialLinks?.facebook || ""
+          ).trim(),
+
+          website: String(
+            team.socialLinks?.website || ""
+          ).trim(),
+        },
+      };
+    }
+
+
+    /*
+========================================
+PROFESSIONAL GUIDE PROFILE
+========================================
+*/
+
+    if (body.professionalGuide !== undefined) {
+      const guide = body.professionalGuide || {};
+
+      existingPage.professionalGuide = {
+        name: String(guide.name || "").trim(),
+
+        photoUrl: String(guide.photoUrl || "").trim(),
+
+        photoStorage: ["cloudinary", "s3"].includes(
+          guide.photoStorage
+        )
+          ? guide.photoStorage
+          : "",
+
+        photoPublicId: String(
+          guide.photoPublicId || ""
+        ).trim(),
+
+        photoKey: String(
+          guide.photoKey || ""
+        ).trim(),
+
+        qualifications: String(
+          guide.qualifications || ""
+        ).trim(),
+
+        certifications: String(
+          guide.certifications || ""
+        ).trim(),
+
+        languages: Array.isArray(guide.languages)
+          ? guide.languages
+            .map((item) => String(item).trim())
+            .filter(Boolean)
+          : [],
+
+        experienceYears: Math.max(
+          0,
+          Number(guide.experienceYears) || 0
+        ),
+
+        specialties: Array.isArray(guide.specialties)
+          ? guide.specialties
+            .map((item) => String(item).trim())
+            .filter(Boolean)
+          : [],
+
+        biography: String(
+          guide.biography || ""
+        ).trim(),
+
+        socialLinks: {
+          linkedin: String(
+            guide.socialLinks?.linkedin || ""
+          ).trim(),
+
+          instagram: String(
+            guide.socialLinks?.instagram || ""
+          ).trim(),
+
+          facebook: String(
+            guide.socialLinks?.facebook || ""
+          ).trim(),
+
+          website: String(
+            guide.socialLinks?.website || ""
+          ).trim(),
+        },
+      };
+    }
+
+    /*
 ========================================
 FAQ- MAP- IMAGE
 ========================================

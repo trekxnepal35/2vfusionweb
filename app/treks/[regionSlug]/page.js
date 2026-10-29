@@ -289,22 +289,62 @@ export default async function RegionTreksPage({ params }) {
                     </div>
 
 
-                    {trek.price?.amount > 0 && (
+                   {/* PRICE */}
 
-                      <div className="mt-5">
+{(() => {
+const price = trek.price;
 
-                        <span className="text-2xl font-bold">
-                          {trek.price.currency}{" "}
-                          {trek.price.amount}
-                        </span>
+if (!price) return null;
 
-                        <span className="ml-2 text-sm text-gray-500">
-                          / person
-                        </span>
+let amount = 0;
+let label = "";
 
-                      </div>
+// PAX-based pricing: show the minimum price per person
+if (price.pricingType === "pax_based") {
+const tiers = Array.isArray(price.paxPrices)
+? price.paxPrices
+: [];
 
-                    )}
+
+const validPrices = tiers
+  .map((tier) => Number(tier.pricePerPax))
+  .filter(
+    (value) => Number.isFinite(value) && value > 0
+  );
+
+if (validPrices.length === 0) return null;
+
+amount = Math.min(...validPrices);
+label = "Start From";
+
+
+} else {
+// Fixed pricing
+amount = Number(price.amount);
+
+
+if (!Number.isFinite(amount) || amount <= 0) {
+  return null;
+}
+
+
+}
+
+return ( <div className="mt-5"> <span className="text-22 font-bold text-gray-900">
+{label ? `${label} ` : ""}
+{price.currency || "USD"}{" "}
+{amount.toLocaleString("en-US")} </span>
+
+
+  <span className="ml-2 text-sm text-gray-500">
+    / person
+  </span>
+</div>
+
+
+);
+})()}
+
 
 
                     <Link

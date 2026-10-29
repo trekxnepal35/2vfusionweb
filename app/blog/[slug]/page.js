@@ -7,6 +7,7 @@ import JsonLd from "@/app/components/JsonLd";
 import YouTubeVideos from "@/app/components/YouTubeVideos";
 import ImageGallery from "@/app/components/ImageGallery";
 import { resolvePageImage, resolveImage, } from "@/lib/imageResolver";
+import RichTextContent from "@/app/components/RichTextContent";
 
 
 
@@ -677,27 +678,23 @@ BLOG GALLERY IMAGES
                           max-w-full
                         "
             >
-              <div
+             
+              <RichTextContent
+                content={blog.content || ""}
                 className="
-                          whitespace-pre-line
-                          text-justify
-                            prose
-                            prose-lg
-                            max-w-none
-                            prose-headings:font-bold
-                            prose-headings:text-gray-900
-                            prose-p:leading-8
-                            prose-p:text-gray-700
-                            prose-a:text-blue-600
-                            prose-a:no-underline
-                            prose-a:hover:underline
-                            prose-img:rounded-xl
-                            prose-strong:text-gray-900
-                          "
-                dangerouslySetInnerHTML={{
-                  __html:
-                    blog.content || "",
-                }}
+    prose
+    prose-lg
+    max-w-none
+    prose-headings:font-bold
+    prose-headings:text-gray-900
+    prose-p:leading-8
+    prose-p:text-gray-700
+    prose-a:text-blue-600
+    prose-a:no-underline
+    prose-a:hover:underline
+    prose-img:rounded-xl
+    prose-strong:text-gray-900
+  "
               />
 
             </div>

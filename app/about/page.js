@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { resolvePageImage } from "@/lib/imageResolver";
-
+import RichTextContent from "../components/RichTextContent";
 
 export const metadata = {
   title: "About Us | Trek Nepal",
@@ -64,9 +64,10 @@ RESOLVE ABOUT PAGE IMAGE
           </p>
 
 
-          <p className=" whitespace-pre-line mt-6 text-justify max-w-full text-lg leading-8 text-gray-200">
-            {page.description}
-          </p>
+          {/* <p className=" whitespace-pre-line mt-6 text-justify max-w-full text-lg leading-8 text-gray-200"> */}
+            {/* {page.description} */}
+            <RichTextContent content={page.description}  />
+          Hello
 
         </div>
 
@@ -94,9 +95,9 @@ RESOLVE ABOUT PAGE IMAGE
 
           <div className="mt-6 text-justify space-y-5 text-base leading-7 text-gray-600">
 
-            <p className="whitespace-pre-line" >
-              {page.content}
-            </p>
+            {/* <p className="whitespace-pre-line" > */}
+         
+            <RichTextContent content={page.content} />
 
 
           </div>
@@ -148,9 +149,10 @@ RESOLVE ABOUT PAGE IMAGE
                   Explore Nepal Your Way
                 </h2>
 
-                <p className="mt-5 text-lg leading-8 text-gray-600">
-                  {page.highlight}
-                </p>
+                {/* <p className="mt-5 text-lg leading-8 text-gray-600"> */}
+                  {/* {page.highlight} */}
+                  <RichTextContent content={page.highlight} />
+              
 
               </div>
 
@@ -267,9 +269,10 @@ RESOLVE ABOUT PAGE IMAGE
             More Than Just a Trip
           </h2>
 
-          <p className="whitespace-pre-line mt-5 text-base leading-7 text-gray-600">
-            {page.importantInformation}
-          </p>
+          {/* <p className="whitespace-pre-line mt-5 text-base leading-7 text-gray-600"> */}
+            {/* {page.importantInformation} */}
+            <RichTextContent content={page.importantInformation} />
+          
 
         </div>
 

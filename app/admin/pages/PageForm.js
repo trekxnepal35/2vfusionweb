@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import RichTextContent from "@/app/components/RichTextContent";
+import RichTextEditor from "@/app/components/admin/RichTextEditor";
+
 
 /*
 
@@ -163,6 +166,60 @@ export default function PageForm({
     highlight: initialData.highlight || "",
 
     /*
+======================================================
+TEAM PROFILE
+======================================================
+*/
+
+    teamProfile: {
+      name: initialData.teamProfile?.name || "",
+      position: initialData.teamProfile?.position || "",
+      biography: initialData.teamProfile?.biography || "",
+      photoUrl: initialData.teamProfile?.photoUrl || "",
+      photoStorage: initialData.teamProfile?.photoStorage || "",
+      photoPublicId: initialData.teamProfile?.photoPublicId || "",
+      photoKey: initialData.teamProfile?.photoKey || "",
+      socialLinks: {
+        linkedin: initialData.teamProfile?.socialLinks?.linkedin || "",
+        instagram: initialData.teamProfile?.socialLinks?.instagram || "",
+        facebook: initialData.teamProfile?.socialLinks?.facebook || "",
+        website: initialData.teamProfile?.socialLinks?.website || "",
+      },
+    },
+
+
+    professionalGuide: {
+      name: initialData.professionalGuide?.name || "",
+      photoUrl: initialData.professionalGuide?.photoUrl || "",
+      photoStorage: initialData.professionalGuide?.photoStorage || "cloudinary",
+      photoPublicId: initialData.professionalGuide?.photoPublicId || "",
+      photoKey: initialData.professionalGuide?.photoKey || "",
+
+      qualifications: initialData.professionalGuide?.qualifications || "",
+      certifications: initialData.professionalGuide?.certifications || "",
+
+      languages: Array.isArray(initialData.professionalGuide?.languages)
+        ? initialData.professionalGuide.languages
+        : [],
+
+      experienceYears: initialData.professionalGuide?.experienceYears ?? 0,
+
+      specialties: Array.isArray(initialData.professionalGuide?.specialties)
+        ? initialData.professionalGuide.specialties
+        : [],
+
+      biography: initialData.professionalGuide?.biography || "",
+
+      socialLinks: {
+        linkedin: initialData.professionalGuide?.socialLinks?.linkedin || "",
+        instagram: initialData.professionalGuide?.socialLinks?.instagram || "",
+        facebook: initialData.professionalGuide?.socialLinks?.facebook || "",
+        website: initialData.professionalGuide?.socialLinks?.website || "",
+      },
+    },
+
+
+    /*
  ------------------------------------------------------
  LEGACY PRIMARY IMAGE
  ------------------------------------------------------
@@ -186,7 +243,7 @@ export default function PageForm({
     */
 
     imageStorage:
-      initialData.imageStorage || "none",
+      initialData.imageStorage || "cloudinary",
 
     /*
     ------------------------------------------------------
@@ -682,6 +739,14 @@ IMAGE UPLOAD
 
   const isTour =
     pageTypeSlug === "tour";
+
+  const isTeam =
+    pageTypeSlug === "team";
+
+  const isGuide =
+    pageTypeSlug === "guide";
+
+
 
   /*
   
@@ -1412,6 +1477,145 @@ UPLOAD IMAGE FILES
       setUploadingImages(false);
     }
   }
+
+
+  /*
+  ------------------------------------------------------
+  UPLOAD TEAM PROFILE PHOTO
+  ------------------------------------------------------
+  */
+  async function handleTeamProfilePhotoUpload(e) {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setUploadError("");
+    setFormError("");
+    setUploadingImages(true);
+
+    try {
+      const storage = formData.imageStorage;
+
+      if (storage !== "cloudinary" && storage !== "s3") {
+        throw new Error(
+          "Please select Cloudinary or AWS S3 before uploading."
+        );
+      }
+
+      const uploadData = new FormData();
+      uploadData.append("storage", storage);
+      uploadData.append("files", file);
+
+      const response = await fetch("/api/uploads/images", {
+        method: "POST",
+        body: uploadData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "Failed to upload profile photo."
+        );
+      }
+
+      const uploadedPhoto = result.data?.[0];
+
+      if (!uploadedPhoto?.url) {
+        throw new Error("The uploaded photo URL was not returned.");
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        teamProfile: {
+          ...prev.teamProfile,
+          photoUrl: uploadedPhoto.url,
+          photoStorage: uploadedPhoto.storage || storage,
+          photoPublicId: uploadedPhoto.publicId || "",
+          photoKey: uploadedPhoto.key || "",
+        },
+      }));
+
+      e.target.value = "";
+    } catch (error) {
+      console.error("Team profile photo upload error:", error);
+
+      setUploadError(
+        error.message || "Failed to upload profile photo."
+      );
+    } finally {
+      setUploadingImages(false);
+    }
+  }
+
+
+  const handleProfessionalGuidePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/gif",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert("Please upload a JPG, PNG, WebP, or GIF image.");
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Maximum file size is 5 MB.");
+      e.target.value = "";
+      return;
+    }
+
+    setUploadingImages(true);
+
+    try {
+      const uploadData = new FormData();
+      uploadData.append(
+        "storage",
+        ["cloudinary", "s3"].includes(formData.professionalGuide.photoStorage)
+          ? formData.professionalGuide.photoStorage
+          : "cloudinary"
+      );
+      uploadData.append("files", file);
+
+      const response = await fetch("/api/uploads/images", {
+        method: "POST",
+        body: uploadData,
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success || !result.data?.[0]?.url) {
+        throw new Error(result.message || "Photo upload failed.");
+      }
+
+      const uploadedImage = result.data[0];
+
+      setFormData((prev) => ({
+        ...prev,
+        professionalGuide: {
+          ...prev.professionalGuide,
+          photoUrl: uploadedImage.url,
+          photoStorage: uploadedImage.storage || "",
+          photoPublicId: uploadedImage.publicId || "",
+          photoKey: uploadedImage.key || "",
+        },
+      }));
+    } catch (error) {
+      console.error("Professional guide photo upload failed:", error);
+      alert(error.message || "Failed to upload the guide photo.");
+    } finally {
+      setUploadingImages(false);
+      e.target.value = "";
+    }
+  };
+
   /*
   
   # MOVE IMAGE
@@ -2250,6 +2454,27 @@ UPLOAD IMAGE FILES
 
       highlight:
         formData.highlight.trim(),
+
+
+      teamProfile: {
+        name: formData.teamProfile.name.trim(),
+        position: formData.teamProfile.position.trim(),
+        photoUrl: formData.teamProfile.photoUrl.trim(),
+        photoStorage: formData.teamProfile.photoStorage || "",
+        photoPublicId: formData.teamProfile.photoPublicId || "",
+        photoKey: formData.teamProfile.photoKey || "",
+
+        biography: formData.teamProfile.biography,
+        socialLinks: {
+          linkedin: formData.teamProfile.socialLinks.linkedin.trim(),
+          instagram: formData.teamProfile.socialLinks.instagram.trim(),
+          facebook: formData.teamProfile.socialLinks.facebook.trim(),
+          website: formData.teamProfile.socialLinks.website.trim(),
+        },
+      },
+
+      professionalGuide: formData.professionalGuide,
+
 
 
 
@@ -3119,19 +3344,22 @@ FAQ IMAGE MAP URL
 
         {/* CONTENT/ Overview */}
 
+        {/* CONTENT / OVERVIEW */}
+
         <div className="md:col-span-2">
           <label className="mb-2 block text-sm font-medium text-gray-700">
             Overview
           </label>
 
-          <textarea
-            name="content"
+          <RichTextEditor
             value={formData.content}
-            onChange={handleChange}
-            rows="8"
-            
+            onChange={(value) =>
+              setFormData((prev) => ({
+                ...prev,
+                content: value,
+              }))
+            }
             placeholder="Write page overview..."
-            className="w-full rounded-lg border px-4 py-3 outline-none focus:border-blue-500 whitespace-pre-line"
           />
         </div>
       </div>
@@ -3143,15 +3371,682 @@ FAQ IMAGE MAP URL
           Highlight
         </label>
 
-        <textarea
-          name="highlight"
+        <RichTextEditor
           value={formData.highlight}
-          onChange={handleChange}
-          rows="8"
-          placeholder="Write page highlight..."
-          className="w-full rounded-lg border px-4 py-3 outline-none focus:border-blue-500"
+          onChange={(value) =>
+            setFormData((prev) => ({
+              ...prev,
+              highlight: value,
+            }))
+          }
+          placeholder="Write key highlights..."
         />
       </div>
+
+
+      {/* =========================================
+            TEAM PROFILE
+        ========================================= */}
+      {isTeam && (
+        <section className="mt-8 rounded-lg border border-gray-200 bg-white p-5">
+          <div className="mb-5">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Team Profile
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Add a team member's details, photo, and social links.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {/* FULL NAME */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={formData.teamProfile.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    teamProfile: {
+                      ...prev.teamProfile,
+                      name: e.target.value,
+                    },
+                  }))
+                }
+                placeholder="Enter team member's name"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* POSITION */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Position
+              </label>
+              <input
+                type="text"
+                value={formData.teamProfile.position}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    teamProfile: {
+                      ...prev.teamProfile,
+                      position: e.target.value,
+                    },
+                  }))
+                }
+                placeholder="e.g. Managing Director"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* PROFILE PHOTO */}
+            <div className="rounded-lg border bg-gray-50 p-4">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Profile Photo Storage
+              </label>
+
+              <select
+                value={
+                  ["cloudinary", "s3"].includes(formData.imageStorage)
+                    ? formData.imageStorage
+                    : "cloudinary"
+                }
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    imageStorage: e.target.value,
+                  }))
+                }
+                className="mb-4 w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              >
+                <option value="cloudinary">Cloudinary</option>
+                <option value="s3">AWS S3</option>
+              </select>
+
+              <p className="mb-3 text-xs text-gray-500">
+                The profile photo will be uploaded to{" "}
+                <strong>
+                  {formData.imageStorage === "s3"
+                    ? "AWS S3"
+                    : "Cloudinary"}
+                </strong>
+                .
+              </p>
+
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Upload Profile Photo
+              </label>
+
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleTeamProfilePhotoUpload}
+                disabled={uploadingImages}
+                className="w-full rounded-lg border bg-white px-4 py-3"
+              />
+
+              <p className="mt-2 text-xs text-gray-500">
+                Supported formats: JPG, PNG, WebP, GIF. Maximum file size: 5 MB.
+              </p>
+
+              {uploadingImages && (
+                <p className="mt-2 text-sm text-blue-600">
+                  Uploading profile photo...
+                </p>
+              )}
+
+              {formData.teamProfile.photoUrl && (
+                <div className="mt-4">
+                  <p className="mb-2 text-sm font-medium text-gray-700">
+                    Photo Preview
+                  </p>
+                  <img
+                    src={formData.teamProfile.photoUrl}
+                    alt="Team profile preview"
+                    className="h-32 w-32 rounded-lg border bg-white object-cover"
+                  />
+                </div>
+              )}
+
+              <label className="mb-2 mt-4 block text-sm font-medium text-gray-700">
+                Or enter Photo URL
+              </label>
+
+              <input
+                type="url"
+                value={formData.teamProfile.photoUrl}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    teamProfile: {
+                      ...prev.teamProfile,
+                      photoUrl: e.target.value,
+                      photoStorage: "",
+                      photoPublicId: "",
+                      photoKey: "",
+                    },
+                  }))
+                }
+                placeholder="https://example.com/team-member.jpg"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* BIOGRAPHY */}
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Biography
+              </label>
+              <RichTextEditor
+                value={formData.teamProfile.biography}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    teamProfile: {
+                      ...prev.teamProfile,
+                      biography: value,
+                    },
+                  }))
+                }
+                placeholder="Write the team member's biography..."
+              />
+            </div>
+
+
+            {/* LINKEDIN */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                LinkedIn URL
+              </label>
+              <input
+                type="url"
+                value={formData.teamProfile.socialLinks.linkedin}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    teamProfile: {
+                      ...prev.teamProfile,
+                      socialLinks: {
+                        ...prev.teamProfile.socialLinks,
+                        linkedin: e.target.value,
+                      },
+                    },
+                  }))
+                }
+                placeholder="https://linkedin.com/in/..."
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* INSTAGRAM */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Instagram URL
+              </label>
+              <input
+                type="url"
+                value={formData.teamProfile.socialLinks.instagram}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    teamProfile: {
+                      ...prev.teamProfile,
+                      socialLinks: {
+                        ...prev.teamProfile.socialLinks,
+                        instagram: e.target.value,
+                      },
+                    },
+                  }))
+                }
+                placeholder="https://instagram.com/..."
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* FACEBOOK */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Facebook URL
+              </label>
+              <input
+                type="url"
+                value={formData.teamProfile.socialLinks.facebook}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    teamProfile: {
+                      ...prev.teamProfile,
+                      socialLinks: {
+                        ...prev.teamProfile.socialLinks,
+                        facebook: e.target.value,
+                      },
+                    },
+                  }))
+                }
+                placeholder="https://facebook.com/..."
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* PERSONAL WEBSITE */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Personal Website
+              </label>
+              <input
+                type="url"
+                value={formData.teamProfile.socialLinks.website}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    teamProfile: {
+                      ...prev.teamProfile,
+                      socialLinks: {
+                        ...prev.teamProfile.socialLinks,
+                        website: e.target.value,
+                      },
+                    },
+                  }))
+                }
+                placeholder="https://example.com"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+          </div>
+        </section>
+
+      )}
+
+
+
+      {/* =========================================
+    PROFESSIONAL GUIDE PROFILE
+========================================= */}
+      {isGuide && (
+        <section className="mt-8 rounded-lg border border-gray-200 bg-white p-5">
+          <div className="mb-5">
+            <h2 className="text-xl font-semibold text-gray-800">
+              Professional Guide Profile
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Add the guide's qualifications, experience, languages, specialties, and biography.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {/* FULL NAME */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={formData.professionalGuide.name}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      name: e.target.value,
+                    },
+                  }))
+                }
+                placeholder="Enter guide's full name"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* PROFILE PHOTO */}
+            <div className="rounded-lg border bg-gray-50 p-4">
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Guide Profile Photo
+              </label>
+
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Choose Photo Storage
+              </label>
+              <select
+                value={
+                  ["cloudinary", "s3"].includes(
+                    formData.professionalGuide.photoStorage
+                  )
+                    ? formData.professionalGuide.photoStorage
+                    : "cloudinary"
+                }
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      photoStorage: e.target.value,
+                    },
+                  }))
+                }
+                className="mb-4 w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              >
+                <option value="cloudinary">Cloudinary</option>
+                <option value="s3">AWS S3</option>
+              </select>
+
+              <p className="mb-3 text-xs text-gray-500">
+                The guide photo will be uploaded to{" "}
+                <strong>
+                  {formData.professionalGuide.photoStorage === "s3"
+                    ? "AWS S3"
+                    : "Cloudinary"}
+                </strong>.
+              </p>
+
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                onChange={handleProfessionalGuidePhotoUpload}
+                disabled={uploadingImages}
+                className="w-full rounded-lg border bg-white px-4 py-3"
+              />
+
+              <p className="mt-2 text-xs text-gray-500">
+                Supported formats: JPG, PNG, WebP, GIF. Maximum file size: 5 MB.
+              </p>
+
+              {uploadingImages && (
+                <p className="mt-2 text-sm text-blue-600">
+                  Uploading photo...
+                </p>
+              )}
+
+              {formData.professionalGuide.photoUrl && (
+                <div className="mt-4">
+                  <p className="mb-2 text-sm font-medium text-gray-700">
+                    Photo Preview
+                  </p>
+                  <img
+                    src={formData.professionalGuide.photoUrl}
+                    alt="Professional guide preview"
+                    className="h-32 w-32 rounded-lg border bg-white object-cover"
+                  />
+                </div>
+              )}
+
+              <label className="mb-2 mt-4 block text-sm font-medium text-gray-700">
+                Or enter Photo URL
+              </label>
+              <input
+                type="url"
+                value={formData.professionalGuide.photoUrl}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      photoUrl: e.target.value,
+                      photoStorage: "",
+                      photoPublicId: "",
+                      photoKey: "",
+                    },
+                  }))
+                }
+                placeholder="https://example.com/guide.jpg"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* QUALIFICATIONS */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Qualifications
+              </label>
+              <input
+                type="text"
+                value={formData.professionalGuide.qualifications}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      qualifications: e.target.value,
+                    },
+                  }))
+                }
+                placeholder="e.g. Tourism Management Diploma"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* CERTIFICATIONS */}
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Certifications
+              </label>
+              <RichTextEditor
+                value={formData.professionalGuide.certifications}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      certifications: value,
+                    },
+                  }))
+                }
+                placeholder="e.g. Trekking Guide License, First Aid Certificate"
+              />
+            </div>
+
+
+            {/* YEARS OF EXPERIENCE */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Years of Experience
+              </label>
+              <input
+                type="number"
+                min="0"
+                step="1"
+                value={formData.professionalGuide.experienceYears}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      experienceYears: Math.max(0, Number(e.target.value) || 0),
+                    },
+                  }))
+                }
+                placeholder="e.g. 8"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* LANGUAGES */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Languages
+              </label>
+              <input
+                type="text"
+                value={formData.professionalGuide.languages.join(", ")}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      languages: e.target.value
+                        .split(",")
+                        .map((item) => item.trim())
+                        .filter(Boolean),
+                    },
+                  }))
+                }
+                placeholder="e.g. English, Nepali, Hindi"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Separate languages with commas.
+              </p>
+            </div>
+
+            {/* SPECIALTIES */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Specialties
+              </label>
+              <input
+                type="text"
+                value={formData.professionalGuide.specialties.join(", ")}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      specialties: e.target.value
+                        .split(",")
+                        .map((item) => item.trim())
+                        .filter(Boolean),
+                    },
+                  }))
+                }
+                placeholder="e.g. Everest Base Camp, Cultural Tours, Mountaineering"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Separate specialties with commas.
+              </p>
+            </div>
+
+            {/* BIOGRAPHY */}
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Biography
+              </label>
+              <RichTextEditor
+                value={formData.professionalGuide.biography}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      biography: value,
+                    },
+                  }))
+                }
+                placeholder="Write the professional guide's biography..."
+              />
+            </div>
+
+
+            {/* LINKEDIN */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                LinkedIn URL
+              </label>
+              <input
+                type="url"
+                value={formData.professionalGuide.socialLinks.linkedin}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      socialLinks: {
+                        ...prev.professionalGuide.socialLinks,
+                        linkedin: e.target.value,
+                      },
+                    },
+                  }))
+                }
+                placeholder="https://linkedin.com/in/..."
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* INSTAGRAM */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Instagram URL
+              </label>
+              <input
+                type="url"
+                value={formData.professionalGuide.socialLinks.instagram}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      socialLinks: {
+                        ...prev.professionalGuide.socialLinks,
+                        instagram: e.target.value,
+                      },
+                    },
+                  }))
+                }
+                placeholder="https://instagram.com/..."
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* FACEBOOK */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Facebook URL
+              </label>
+              <input
+                type="url"
+                value={formData.professionalGuide.socialLinks.facebook}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      socialLinks: {
+                        ...prev.professionalGuide.socialLinks,
+                        facebook: e.target.value,
+                      },
+                    },
+                  }))
+                }
+                placeholder="https://facebook.com/..."
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+
+            {/* PERSONAL WEBSITE */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Personal Website
+              </label>
+              <input
+                type="url"
+                value={formData.professionalGuide.socialLinks.website}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    professionalGuide: {
+                      ...prev.professionalGuide,
+                      socialLinks: {
+                        ...prev.professionalGuide.socialLinks,
+                        website: e.target.value,
+                      },
+                    },
+                  }))
+                }
+                placeholder="https://example.com"
+                className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+              />
+            </div>
+          </div>
+        </section>
+      )}
+
+
+
 
     </section>
 
@@ -4058,21 +4953,20 @@ FAQ IMAGE MAP URL
                       Description
                     </label>
 
-                    <textarea
-                      value={
-                        item.description
-                      }
-                      onChange={(e) =>
+                    <RichTextEditor
+                      value={item.description}
+                      onChange={(html) =>
                         handleItineraryChange(
                           index,
                           "description",
-                          e.target.value
+                          html
                         )
                       }
-                      rows="4"
                       placeholder="Describe the activities for this day..."
                       className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
                     />
+
+
                   </div>
 
                   {/* ACCOMMODATION */}
@@ -4314,18 +5208,18 @@ FAQ IMAGE MAP URL
           Important Information
         </h2>
 
-        <textarea
-          name="importantInformation"
-          value={
-            formData.importantInformation
+
+        <RichTextEditor
+          value={formData.importantInformation}
+          onChange={(value) =>
+            setFormData((prev) => ({
+              ...prev,
+              importantInformation: value,
+            }))
           }
-          onChange={
-            handleChange
-          }
-          rows="7"
-          placeholder="Permits, visa information, travel insurance, fitness requirements, etc."
-          className="w-full rounded-lg border px-4 py-3 outline-none focus:border-blue-500"
+          placeholder="Write important information..."
         />
+
       </section>
     )}
 
@@ -4499,126 +5393,120 @@ FAQ IMAGE MAP URL
       </div>
 
 
-   {/* EMPTY FAQ */}
+      {/* EMPTY FAQ */}
 
-{formData.faqs.length === 0 && (
-  <div className="rounded-lg border border-dashed p-8 text-center">
+      {formData.faqs.length === 0 && (
+        <div className="rounded-lg border border-dashed p-8 text-center">
 
-    <p className="text-sm text-gray-500">
-      No FAQ items added.
-    </p>
-
-    <button
-      type="button"
-      onClick={addFaq}
-      className="mt-3 text-sm font-semibold text-blue-600 hover:underline"
-    >
-      Add your first FAQ
-    </button>
-
-  </div>
-)}
-
-
-{/* FAQ ITEMS */}
-
-{formData.faqs.length > 0 && (
-  <div className="space-y-5">
-
-    {formData.faqs.map((faq, index) => (
-
-      <div
-        key={index}
-        className="rounded-xl border bg-gray-50 p-5"
-      >
-
-        <div className="mb-4 flex items-center justify-between">
-
-          <h3 className="font-semibold text-gray-900">
-            FAQ {index + 1}
-          </h3>
+          <p className="text-sm text-gray-500">
+            No FAQ items added.
+          </p>
 
           <button
             type="button"
-            onClick={() => removeFaq(index)}
-            className="text-sm font-medium text-red-600 hover:text-red-700"
+            onClick={addFaq}
+            className="mt-3 text-sm font-semibold text-blue-600 hover:underline"
           >
-            Remove
+            Add your first FAQ
           </button>
 
         </div>
+      )}
 
 
-        {/* QUESTION */}
+      {/* FAQ ITEMS */}
 
-        <div className="mb-4">
+      {formData.faqs.length > 0 && (
+        <div className="space-y-5">
 
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Question
-          </label>
+          {formData.faqs.map((faq, index) => (
 
-          <input
-            type="text"
-            value={faq.question}
-            onChange={(e) =>
-              handleFaqChange(
-                index,
-                "question",
-                e.target.value
-              )
-            }
-            placeholder="What is the best season for this trek?"
-            className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
-          />
+            <div
+              key={index}
+              className="rounded-xl border bg-gray-50 p-5"
+            >
+
+              <div className="mb-4 flex items-center justify-between">
+
+                <h3 className="font-semibold text-gray-900">
+                  FAQ {index + 1}
+                </h3>
+
+                <button
+                  type="button"
+                  onClick={() => removeFaq(index)}
+                  className="text-sm font-medium text-red-600 hover:text-red-700"
+                >
+                  Remove
+                </button>
+
+              </div>
+
+
+              {/* QUESTION */}
+
+              <div className="mb-4">
+
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Question
+                </label>
+
+                <input
+                  type="text"
+                  value={faq.question}
+                  onChange={(e) =>
+                    handleFaqChange(
+                      index,
+                      "question",
+                      e.target.value
+                    )
+                  }
+                  placeholder="What is the best season for this trek?"
+                  className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
+                />
+
+              </div>
+
+
+              {/* ANSWER */}
+
+              <div>
+
+                <label className="mb-2 block text-sm font-medium text-gray-700">
+                  Answer
+                </label>
+
+                <RichTextEditor
+                  value={faq.answer}
+                  onChange={(html) =>
+                    handleFaqChange(index, "answer", html)
+                  }
+                  placeholder={`Write answer for FAQ ${index + 1}...`}
+                />
+
+              </div>
+
+            </div>
+
+          ))}
 
         </div>
+      )}
 
 
-        {/* ANSWER */}
+      {/* ADD FAQ BUTTON */}
 
-        <div>
+      <div className="mt-4">
 
-          <label className="mb-2 block text-sm font-medium text-gray-700">
-            Answer
-          </label>
-
-          <textarea
-            value={faq.answer}
-            onChange={(e) =>
-              handleFaqChange(
-                index,
-                "answer",
-                e.target.value
-              )
-            }
-            rows="4"
-            placeholder="Write the answer to this frequently asked question..."
-            className="w-full rounded-lg border bg-white px-4 py-3 outline-none focus:border-blue-500"
-          />
-
-        </div>
+        <button
+          type="button"
+          onClick={addFaq}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          + Add FAQ
+        </button>
 
       </div>
-
-    ))}
-
-  </div>
-)}
-
-
-{/* ADD FAQ BUTTON */}
-
-<div className="mt-4">
-
-  <button
-    type="button"
-    onClick={addFaq}
-    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-  >
-    + Add FAQ
-  </button>
-
-</div>
 
     </section>
 
