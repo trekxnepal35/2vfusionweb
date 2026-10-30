@@ -248,6 +248,7 @@ export default async function WellnessDetailPage({ params }) {
 
                 {page.content && (
                     <article className="rounded-2xl bg-white p-6 shadow-sm sm:p-10">
+                        <SectionCollapse title="Overview">
                         <h2 className="text-2xl font-bold text-gray-900 sm:text-3xl">
                             Discover This Experience
                         </h2>
@@ -256,6 +257,7 @@ export default async function WellnessDetailPage({ params }) {
                             content={page.content}
                             className="prose max-w-none prose-p:leading-8 prose-p:text-gray-700 prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-blue-600 prose-a:hover:underline"
                         />
+                        </SectionCollapse>
                     </article>
                 )}
 
