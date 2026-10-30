@@ -6,6 +6,10 @@ import Page from "@/models/Page";
 import PageType from "@/models/PageType";
 import { resolveImage } from "@/lib/imageResolver";
 import RichTextContent from "@/app/components/RichTextContent";
+import SectionCollapse from "@/app/components/SectionCollapse";
+import SectionNavigation from "@/app/components/SectionNavigation";
+import FeedbackList from "@/app/components/FeedbackList";
+import FeedbackForm from "@/app/components/FeedbackForm";
 
 
 async function getWellnessPage(slug) {
@@ -125,6 +129,60 @@ export default async function WellnessDetailPage({ params }) {
                 />
             </div>
         )}
+
+         {/* =====================================
+              Navbar/Page Menus display
+          ===================================== */}
+         
+        <SectionNavigation
+          sections={[
+            {
+              id: "overview",
+              label: "Overview",
+              icon: "📖",
+            },
+            // {
+            //   id: "highlight",
+            //   label: "Highlight",
+            //   icon: "⭐",
+            // },
+            // {
+            //   id: "itinerary",
+            //   label: "Itinerary",
+            //   icon: "🗓️",
+            // },
+            // {
+            //   id: "tour-information",
+            //   label: "Tour Information",
+            //   icon: "ℹ️",
+            // },
+            // {
+            //   id: "included",
+            //   label: "What's Included",
+            //   icon: "✓",
+            // },
+            // {
+            //   id: "excluded",
+            //   label: "What's Not Included",
+            //   icon: "×",
+            // },
+            // {
+            //   id: "important-information",
+            //   label: "Important Information",
+            //   icon: "⚠️",
+            // },
+            {
+              id: "map-faq",
+              label: "Map & FAQ",
+              icon: "❓",
+            },
+            {
+              id: "reviews",
+              label: "Review",
+              icon: "💬",
+            },
+          ]}
+        />
     </div>
 
     {/* RIGHT: PRICE AND BOOKING CARD */}
@@ -226,6 +284,159 @@ export default async function WellnessDetailPage({ params }) {
                 )}
 
                
+
+                 {/* =====================================
+               FREQUENTLY ASKED QUESTIONS
+              ===================================== */}
+
+          {Array.isArray(page.faqs) &&
+            page.faqs.length > 0 && (
+
+              <section id="map-faq" className="mx-auto mt-16 max-w-full px-6">
+                <SectionCollapse title="Map-FAQ">
+                  <hr />
+                  <div className="grid gap-10 lg:grid-cols-3">
+
+                    {/* FAQ IMAGE */}
+
+                    {page.faqImageUrl && (
+
+                      <div className="lg:col-span-1">
+
+                        <div className="sticky top-24 overflow-hidden rounded-2xl">
+
+                          <img
+                            src={page.faqImageUrl}
+                            alt={`${page.title} FAQ`}
+                            className="h-[420px] w-full object-cover"
+                          />
+
+                        </div>
+
+                      </div>
+
+                    )}
+
+                    {/* FAQ CONTENT */}
+
+                    <div
+                      className={
+                        page.faqImageUrl
+                          ? "lg:col-span-2"
+                          : "lg:col-span-3"
+                      }
+                    >
+
+                      <div className="mb-8">
+
+                        <p className="text-sm font-semibold uppercase tracking-wider text-emerald-600">
+                          Frequently Asked Questions
+                        </p>
+
+                        <h2 className="mt-2 text-3xl font-bold text-gray-900">
+                          Questions About {page.title}
+                        </h2>
+
+                        <p className="mt-3 text-gray-600">
+                          Find answers to common questions about this page.
+                        </p>
+
+                      </div>
+
+                      <div className="space-y-4">
+
+                        {page.faqs.map(
+                          (faq, index) => (
+
+                            <details
+                              key={index}
+                              className="group rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
+                            >
+
+                              <summary className="text-justify flex cursor-pointer list-none items-center justify-between gap-6 font-semibold text-gray-900">
+
+                                <span>
+                                  {faq.question}
+                                </span>
+
+                                <span className="text-2xl text-emerald-600 transition-transform duration-300 group-open:rotate-45">
+                                  +
+                                </span>
+
+                              </summary>
+
+                              {faq.answer && (
+
+                                <div className="mt-4 border-t border-gray-100 pt-4">
+
+                                  {/* <p className="text-justify leading-7 text-gray-600">
+                                    {faq.answer}
+                                  </p> */}
+
+                                  <RichTextContent
+                                    content={faq.answer}
+                                    className="prose max-w-none prose-p:leading-7 prose-p:text-gray-600 prose-headings:font-bold prose-headings:text-gray-900 prose-a:text-blue-600 prose-a:hover:underline"
+                                  />
+
+                                </div>
+
+                              )}
+
+                            </details>
+
+                          )
+                        )}
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                </SectionCollapse>
+              </section>
+
+            )}
+
+          {/* =====================================
+              YouTube Videos
+           ===================================== */}
+
+          {Array.isArray(page.youtubeVideos) &&
+            page.youtubeVideos.length > 0 && (
+
+              <section className="mx-auto mt-16 max-w-6xl">
+
+                <YouTubeVideos
+                  videos={page.youtubeVideos}
+                />
+
+              </section>
+
+            )}
+
+          {/* =====================================
+              FEEDBACK / COMMENTS
+          ===================================== */}
+
+          <section id="reviews" className="mx-auto mt-16 max-w-5xl">
+           
+            <SectionCollapse title="Reviews">
+              <hr />
+             
+              <FeedbackList
+                pageId={String(page._id)}
+              />
+            </SectionCollapse>
+
+            <SectionCollapse title="Form">
+              
+              <FeedbackForm
+                pageId={String(page._id)}
+                pageTitle={page.title}
+              />
+            </SectionCollapse>
+
+          </section>
 
                 {/* BACK TO WELLNESS */}
                 <div className="mt-10 text-center">
