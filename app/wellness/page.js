@@ -7,9 +7,9 @@ import { resolveImage } from "@/lib/imageResolver";
 import RichTextContent from "@/app/components/RichTextContent";
 
 export const metadata = {
-    title: "Wellness & Rejuvenation | WildPath",
+    title: "Wellness & Rejuvenation | FUSION EXPEDITIONS",
     description:
-        "Discover nature-inspired wellness experiences, programs, and retreats with WildPath.",
+        "Discover nature-inspired wellness experiences, programs, and retreats with FUSION EXPEDITIONS.",
 };
 
 async function getWellnessPages() {

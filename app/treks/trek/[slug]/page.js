@@ -933,14 +933,21 @@ IMPORTANT INFORMATION
 
                         <div className="sticky top-24 overflow-hidden rounded-2xl transition-all duration-300">
 
+                        <Link
+                          href={trek.faqImageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block cursor-pointer"
+                        >
                           <img
                             src={trek.faqImageUrl}
                             alt={`${trek.title} FAQ`}
                             className="h-[520px] w-full object-cover"
                           />
-
+                          
+                          </Link>
                         </div>
-
+                       
                       </div>
 
                     )}

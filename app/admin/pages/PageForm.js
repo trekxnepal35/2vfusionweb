@@ -740,6 +740,12 @@ IMAGE UPLOAD
   const isTour =
     pageTypeSlug === "tour";
 
+  const isGeneral =
+    pageTypeSlug === "general";
+
+  const isWellness =
+    pageTypeSlug === "wellness";
+
   const isTeam =
     pageTypeSlug === "team";
 
@@ -755,7 +761,7 @@ IMAGE UPLOAD
   */
 
   const isExperience =
-    isTrek || isTour;
+    isTrek || isTour || isGeneral || isWellness;
 
   /*
   

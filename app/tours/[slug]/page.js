@@ -896,12 +896,18 @@ GALLERY IMAGES
                       <div className="lg:col-span-1">
 
                         <div className="sticky top-24 overflow-hidden rounded-2xl">
-
+                        <Link
+                          href={tour.faqImageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block cursor-pointer"
+                        >
                           <img
                             src={tour.faqImageUrl}
                             alt={`${tour.title} FAQ`}
                             className="h-[420px] w-full object-cover"
                           />
+                          </Link>
 
                         </div>
 

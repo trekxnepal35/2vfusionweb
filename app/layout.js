@@ -24,9 +24,9 @@ export const metadata = {
 
   title: {
     default:
-      "Trek Nepal | Himalayan Treks & Tours",
+      "FUSION EXPEDITIONS | Himalayan Treks & Tours",
     template:
-      "%s | Trek Nepal",
+      "%s | FUSION EXPEDITIONS",
   },
 
 
@@ -85,7 +85,7 @@ export const metadata = {
       " Fusion Expeditions Trek X Nepal",
 
     title:
-      "Trek X Nepal | Fusion Expeditions | Himalayan Treks & Tours",
+      " Fusion Expeditions | Himalayan Treks & Tours",
 
     description:
       "Explore Nepal's Himalayas through unforgettable treks, tours and authentic travel experiences.",
@@ -100,7 +100,7 @@ export const metadata = {
       "summary_large_image",
 
     title:
-      "Trek X Nepal |Fusion Expeditions | Himalayan Treks & Tours",
+      "Fusion Expeditions | Himalayan Treks & Tours",
 
     description:
       "Discover unforgettable adventures across Nepal's Himalayas.",
